@@ -772,6 +772,56 @@
     </div>
   </div>
 
+  <!-- Firebase RTDB: realtime listener & write helper -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDediGzKvGwarWhm_ppSsz5t9xPEbiLUqM",
+      authDomain: "timeline-dept-project.firebaseapp.com",
+      databaseURL: "https://timeline-dept-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "timeline-dept-project",
+      storageBucket: "timeline-dept-project.firebasestorage.app",
+      messagingSenderId: "650780741835",
+      appId: "1:650780741835:web:2b0353beda245153078b4e",
+      measurementId: "G-CMN3LE4SSL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const projectsRef = ref(db, 'dept_pm_projects');
+
+    // Expose Firebase write to global scope so the main script can call it
+    window.saveProjectsToFirebase = function(projectsArray) {
+      const projectsObj = {};
+      projectsArray.forEach(function(p) { projectsObj[p.id] = p; });
+      set(projectsRef, projectsObj).catch(function(err) {
+        console.error('[Firebase] Write error:', err);
+      });
+    };
+
+    // Realtime listener: on every Firebase change, update the local projects array
+    // and re-render. Uses window.updateProjectsFromFirebase which is registered by
+    // the main script so it can mutate its own closed-over `projects` variable.
+    onValue(projectsRef, function(snapshot) {
+      const data = snapshot.val();
+      if (data && typeof data === 'object') {
+        const arr = Object.values(data);
+        // Sort newest-first (id is a timestamp string)
+        arr.sort(function(a, b) { return Number(b.id) - Number(a.id); });
+        // Persist locally as backup
+        try { localStorage.setItem('dept_pm_projects', JSON.stringify(arr)); } catch(e) {}
+        // Delegate into the main script's closure to update its own `projects` variable
+        if (typeof window.updateProjectsFromFirebase === 'function') {
+          window.updateProjectsFromFirebase(arr);
+        }
+      }
+    }, function(err) {
+      console.error('[Firebase] Read error:', err);
+    });
+  </script>
+
   <script>
     const ADMIN_PASSWORD_DEFAULT = "admin123";
     let currentUserRole = sessionStorage.getItem('dept_pm_role') || sessionStorage.getItem('protrack_role') || 'public';
@@ -896,8 +946,13 @@
     }
 
     function saveToLocalStorage() { 
-      try { localStorage.setItem('dept_pm_projects', JSON.stringify(projects)); } catch(e) {} 
-      render(); 
+      try { localStorage.setItem('dept_pm_projects', JSON.stringify(projects)); } catch(e) {}
+      // Optimistic local render so UI feels instant
+      render();
+      // Write to Firebase RTDB — onValue listener will sync to all other clients
+      if (typeof window.saveProjectsToFirebase === 'function') {
+        window.saveProjectsToFirebase(projects);
+      }
     }
 
     function savePettyCashToLocalStorage() { 
@@ -1946,6 +2001,14 @@
     window.onload = function() {
       const projDeptEl = document.getElementById('projDept');
       if (projDeptEl) { projDeptEl.addEventListener('change', function() { populatePcOutletFilter(this.value, 'projLocation', true); }); }
+
+      // Register a callback the Firebase module script can call to update the
+      // closed-over `projects` variable and re-render in realtime
+      window.updateProjectsFromFirebase = function(arr) {
+        projects = arr;
+        render();
+      };
+
       updateRoleUI();
       render();
       setTimeout(checkDeadlinesAndNotify, 1000); // Check notifications 1 sec after load
