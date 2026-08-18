@@ -2064,6 +2064,262 @@
       const ws = XLSX.utils.aoa_to_sheet(excelRows); ws['!cols'] = [{ wch: 6 }, { wch: 20 }, { wch: 15 }, { wch: 38 }, { wch: 22 }, { wch: 28 }, { wch: 16 }, { wch: 18 }, { wch: 55 }, { wch: 22 }]; const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rekapan Projek"); XLSX.writeFile(wb, `Rekapan_Projek_${deptFilter}_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
+    /* --- LPJ FUNCTIONS --- */
+    function openLpjModalFromRab() { 
+      const projId = document.getElementById('rabProjId').value; 
+      closeRabModal(); 
+      openLpjModal(projId); 
+    }
+    
+    function openLpjModal(projId) { 
+      if (currentUserRole !== 'admin') { openLoginModal(); return; } 
+      const proj = projects.find(function(p) { return p.id === projId; }); 
+      if (!proj) return; 
+      
+      document.getElementById('lpjProjId').value = projId; 
+      document.getElementById('lpjSubtitle').innerText = proj.name + ' (' + proj.dept + ' - ' + proj.location + ')'; 
+      
+      if (!proj.lpj) { 
+        proj.lpj = { 
+          no: "LPJ/" + proj.dept.toUpperCase() + "/" + new Date().getFullYear() + "/" + Math.floor(100 + Math.random() * 900), 
+          date: new Date().toISOString().split('T')[0], 
+          status: "Draft", 
+          notes: "Pekerjaan telah rampung dan diserahterimakan.", 
+          items: (proj.rab && proj.rab.items) ? proj.rab.items.map(function(item) { 
+            return { name: item.name, qty: item.qty || 1, unit: item.unit || "Pcs", rabPrice: item.price || 0, realPrice: item.price || 0 }; 
+          }) : [] 
+        }; 
+      } 
+      
+      document.getElementById('lpjNoInput').value = proj.lpj.no || ("LPJ-" + proj.id); 
+      document.getElementById('lpjDateInput').value = proj.lpj.date || new Date().toISOString().split('T')[0]; 
+      document.getElementById('lpjStatusSelect').value = proj.lpj.status || "Draft"; 
+      document.getElementById('lpjNotesInput').value = proj.lpj.notes || ""; 
+      
+      const btnAddLpj = document.getElementById('btnAddLpjItem'); 
+      if (btnAddLpj) btnAddLpj.style.display = (currentUserRole === 'admin') ? 'flex' : 'none';
+      
+      renderLpjRows(proj.lpj.items || []); 
+      document.getElementById('lpjModal').classList.remove('hidden'); 
+    }
+    
+    function closeLpjModal() { 
+      document.getElementById('lpjModal').classList.add('hidden'); 
+    }
+    
+    function renderLpjRows(items) { 
+      const tbody = document.getElementById('lpjItemsTableBody'); 
+      if (!tbody) return; 
+      
+      const isAdmin = (currentUserRole === 'admin');
+      
+      if (items.length === 0) { 
+        tbody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-slate-400 font-medium">Belum ada item rincian pekerjaan pada LPJ.</td></tr>'; 
+        calculateLpjTotals(); 
+        return; 
+      } 
+      
+      tbody.innerHTML = items.map(function(item, idx) { 
+        const qty = item.qty || 1; 
+        const rabPrice = item.rabPrice || 0; 
+        const realPrice = item.realPrice || 0; 
+        const rabTotal = qty * rabPrice; 
+        const realTotal = qty * realPrice; 
+        const variance = rabTotal - realTotal; 
+        
+        let varColor = "text-slate-600"; 
+        if (variance > 0) varColor = "text-emerald-600 font-bold"; 
+        else if (variance < 0) varColor = "text-rose-600 font-bold"; 
+        
+        const disAttr = isAdmin ? '' : 'disabled'; 
+        const actionCol = isAdmin ? '' : 'hidden'; 
+        
+        return '<tr class="hover:bg-slate-50 transition">' +
+          '<td class="p-2 border-b border-slate-200 text-center font-bold text-slate-400">' + (idx + 1) + '</td>' +
+          '<td class="p-2 border-b border-slate-200"><input type="text" value="' + (item.name || '') + '" ' + disAttr + ' oninput="updateLpjItem(' + idx + ', \'name\', this.value)" class="w-full p-1.5 border border-slate-200 rounded text-xs font-semibold focus:ring-1 focus:ring-amber-500 outline-none disabled:bg-transparent disabled:border-transparent"></td>' +
+          '<td class="p-2 border-b border-slate-200 text-center"><input type="number" min="1" value="' + qty + '" ' + disAttr + ' oninput="updateLpjItem(' + idx + ', \'qty\', this.value)" class="w-full p-1.5 border border-slate-200 rounded text-xs text-center font-bold focus:ring-1 focus:ring-amber-500 outline-none disabled:bg-transparent disabled:border-transparent"></td>' +
+          '<td class="p-2 border-b border-slate-200"><select ' + disAttr + ' onchange="updateLpjItem(' + idx + ', \'unit\', this.value)" class="w-full p-1.5 border border-slate-200 rounded text-xs text-slate-700 focus:ring-1 focus:ring-amber-500 outline-none disabled:bg-transparent disabled:border-transparent"><option value="Unit" ' + (item.unit === 'Unit' ? 'selected' : '') + '>Unit</option><option value="Pcs" ' + (item.unit === 'Pcs' ? 'selected' : '') + '>Pcs</option><option value="Paket" ' + (item.unit === 'Paket' ? 'selected' : '') + '>Paket</option><option value="Meter" ' + (item.unit === 'Meter' ? 'selected' : '') + '>Meter</option><option value="LS" ' + (item.unit === 'LS' ? 'selected' : '') + '>LS</option><option value="Set" ' + (item.unit === 'Set' ? 'selected' : '') + '>Set</option></select></td>' +
+          '<td class="p-2 border-b border-slate-200 text-right text-slate-600 font-semibold pt-3">Rp ' + rabPrice.toLocaleString('id-ID') + '</td>' +
+          '<td class="p-2 border-b border-slate-200"><input type="number" min="0" value="' + realPrice + '" ' + disAttr + ' oninput="updateLpjItem(' + idx + ', \'realPrice\', this.value)" class="w-full p-1.5 border border-slate-300 rounded text-xs text-right font-bold text-slate-900 focus:ring-1 focus:ring-amber-500 outline-none disabled:bg-slate-50"></td>' +
+          '<td class="p-2 border-b border-slate-200 text-right font-extrabold text-slate-900 pt-3" id="lpjRowRealTotal-' + idx + '">Rp ' + realTotal.toLocaleString('id-ID') + '</td>' +
+          '<td class="p-2 border-b border-slate-200 text-right pt-3 ' + varColor + '" id="lpjRowVar-' + idx + '">Rp ' + variance.toLocaleString('id-ID') + '</td>' +
+          '<td class="p-2 border-b border-slate-200 text-center ' + actionCol + '"><button type="button" onclick="deleteLpjRow(' + idx + ')" class="text-rose-500 hover:text-rose-700 p-1" title="Hapus Baris"><i class="fa-solid fa-trash-can"></i></button></td>' +
+        '</tr>'; 
+      }).join(''); 
+      
+      calculateLpjTotals(); 
+    }
+    
+    function updateLpjItem(idx, key, val) { 
+      if (currentUserRole !== 'admin') return; 
+      const projId = document.getElementById('lpjProjId').value; 
+      const proj = projects.find(function(p) { return p.id === projId; }); 
+      if (!proj || !proj.lpj || !proj.lpj.items[idx]) return; 
+      
+      if (key === 'qty' || key === 'realPrice' || key === 'rabPrice') { 
+        proj.lpj.items[idx][key] = parseFloat(val) || 0; 
+      } else { 
+        proj.lpj.items[idx][key] = val; 
+      }
+      
+      const item = proj.lpj.items[idx]; 
+      const qty = item.qty || 1; 
+      const rabTotal = qty * (item.rabPrice || 0); 
+      const realTotal = qty * (item.realPrice || 0); 
+      const variance = rabTotal - realTotal; 
+      
+      const cellReal = document.getElementById('lpjRowRealTotal-' + idx); 
+      if (cellReal) cellReal.innerText = 'Rp ' + realTotal.toLocaleString('id-ID'); 
+      
+      const cellVar = document.getElementById('lpjRowVar-' + idx); 
+      if (cellVar) { 
+        cellVar.innerText = 'Rp ' + variance.toLocaleString('id-ID'); 
+        if (variance > 0) cellVar.className = "p-2 border-b border-slate-200 text-right pt-3 text-emerald-600 font-bold"; 
+        else if (variance < 0) cellVar.className = "p-2 border-b border-slate-200 text-right pt-3 text-rose-600 font-bold"; 
+        else cellVar.className = "p-2 border-b border-slate-200 text-right pt-3 text-slate-600 font-bold"; 
+      } 
+      
+      calculateLpjTotals(); 
+    }
+
+    function addLpjItemRow() {
+      if (currentUserRole !== 'admin') return;
+      const projId = document.getElementById('lpjProjId').value;
+      const proj = projects.find(p => p.id === projId);
+      if (!proj || !proj.lpj) return;
+      
+      if (!proj.lpj.items) proj.lpj.items = [];
+      proj.lpj.items.push({ name: "Item Tambahan", qty: 1, unit: "Pcs", rabPrice: 0, realPrice: 0 });
+      renderLpjRows(proj.lpj.items);
+    }
+
+    function deleteLpjRow(idx) {
+      if (currentUserRole !== 'admin') return;
+      const projId = document.getElementById('lpjProjId').value;
+      const proj = projects.find(p => p.id === projId);
+      if (!proj || !proj.lpj || !proj.lpj.items) return;
+      
+      proj.lpj.items.splice(idx, 1);
+      renderLpjRows(proj.lpj.items);
+    }
+    
+    function calculateLpjTotals() { 
+      const projId = document.getElementById('lpjProjId').value; 
+      const proj = projects.find(function(p) { return p.id === projId; }); 
+      if (!proj || !proj.lpj) return; 
+      
+      let estRabSum = 0; 
+      let realCostSum = 0; 
+      
+      (proj.lpj.items || []).forEach(function(i) { 
+        const q = i.qty || 1; 
+        estRabSum += q * (i.rabPrice || 0); 
+        realCostSum += q * (i.realPrice || 0); 
+      }); 
+      
+      const totalVariance = estRabSum - realCostSum; 
+      
+      document.getElementById('lpjStatEstRab').innerText = 'Rp ' + estRabSum.toLocaleString('id-ID'); 
+      document.getElementById('lpjStatRealCost').innerText = 'Rp ' + realCostSum.toLocaleString('id-ID'); 
+      
+      const statVarEl = document.getElementById('lpjStatVariance'); 
+      if (statVarEl) { 
+        statVarEl.innerText = 'Rp ' + totalVariance.toLocaleString('id-ID'); 
+        if (totalVariance > 0) statVarEl.className = "text-lg font-black text-emerald-600 mt-0.5"; 
+        else if (totalVariance < 0) statVarEl.className = "text-lg font-black text-rose-600 mt-0.5"; 
+        else statVarEl.className = "text-lg font-black text-slate-800 mt-0.5"; 
+      } 
+      
+      const tableGrandReal = document.getElementById('lpjTableGrandReal');
+      if (tableGrandReal) tableGrandReal.innerText = 'Rp ' + realCostSum.toLocaleString('id-ID'); 
+      
+      const tfootVarEl = document.getElementById('lpjTableGrandVariance'); 
+      if (tfootVarEl) { 
+        tfootVarEl.innerText = 'Rp ' + totalVariance.toLocaleString('id-ID'); 
+        if (totalVariance > 0) tfootVarEl.className = "p-3 text-right text-emerald-600 font-bold"; 
+        else if (totalVariance < 0) tfootVarEl.className = "p-3 text-right text-rose-600 font-bold"; 
+        else tfootVarEl.className = "p-3 text-right text-slate-700 font-bold"; 
+      } 
+    }
+    
+    function saveLpjDetails() { 
+      if (currentUserRole !== 'admin') return; 
+      const projId = document.getElementById('lpjProjId').value; 
+      const proj = projects.find(function(p) { return p.id === projId; }); 
+      if (!proj || !proj.lpj) return; 
+      
+      proj.lpj.no = document.getElementById('lpjNoInput').value.trim(); 
+      proj.lpj.date = document.getElementById('lpjDateInput').value; 
+      proj.lpj.status = document.getElementById('lpjStatusSelect').value; 
+      proj.lpj.notes = document.getElementById('lpjNotesInput').value.trim(); 
+      
+      if (proj.lpj.status === 'Selesai') { 
+        if (proj.milestones && proj.milestones[4]) { 
+          proj.milestones[4].status = 'completed'; 
+          proj.milestones[4].note = 'LPJ Lunas & Selesai (' + proj.lpj.date + ')'; 
+        } 
+      } 
+      
+      saveToLocalStorage(); 
+      closeLpjModal(); 
+    }
+
+    function openLpjPrintSettingsModal() { 
+      if (currentUserRole !== 'admin') { openLoginModal(); return; } 
+      updateLpjPrintPreview(); 
+      document.getElementById('lpjPrintSettingsModal').classList.remove('hidden'); 
+    }
+    
+    function closeLpjPrintSettingsModal() { 
+      document.getElementById('lpjPrintSettingsModal').classList.add('hidden'); 
+    }
+    
+    function triggerLpjPrint() { 
+      if (currentUserRole !== 'admin') { openLoginModal(); return; } 
+      window.print(); 
+    }
+
+    function updateLpjPrintPreview() {
+      if (currentUserRole !== 'admin') return;
+      const projId = document.getElementById('lpjProjId').value; 
+      const proj = projects.find(p => p.id === projId); 
+      if (!proj || !proj.lpj) return;
+      
+      const showKop = document.getElementById('lpjPrintOptKop').checked; 
+      const showSignatures = document.getElementById('lpjPrintOptSignatures').checked;
+      
+      const lpjNo = document.getElementById('lpjNoInput').value || proj.lpj.no; 
+      const lpjDate = document.getElementById('lpjDateInput').value || proj.lpj.date; 
+      const lpjStatus = document.getElementById('lpjStatusSelect').value || proj.lpj.status; 
+      const lpjNotes = document.getElementById('lpjNotesInput').value || proj.lpj.notes;
+
+      let totalRabSum = 0; 
+      let totalRealSum = 0;
+      
+      const tableRowsHTML = (proj.lpj.items || []).map((item, idx) => {
+        const q = item.qty || 1; 
+        const rabT = q * (item.rabPrice || 0); 
+        const realT = q * (item.realPrice || 0); 
+        const varT = rabT - realT;
+        
+        totalRabSum += rabT; 
+        totalRealSum += realT; 
+        
+        const varClass = varT >= 0 ? 'text-emerald-700' : 'text-rose-700';
+        return `<tr class="border-b border-slate-200"><td class="p-1.5 text-center">${idx + 1}</td><td class="p-1.5 font-medium">${item.name}</td><td class="p-1.5 text-center font-bold">${q}</td><td class="p-1.5 text-center">${item.unit}</td><td class="p-1.5 text-right">Rp ${(item.rabPrice || 0).toLocaleString('id-ID')}</td><td class="p-1.5 text-right font-bold">Rp ${(item.realPrice || 0).toLocaleString('id-ID')}</td><td class="p-1.5 text-right font-extrabold text-blue-800">Rp ${realT.toLocaleString('id-ID')}</td><td class="p-1.5 text-right font-bold ${varClass}">Rp ${varT.toLocaleString('id-ID')}</td></tr>`;
+      }).join('');
+      
+      const netVariance = totalRabSum - totalRealSum; 
+      const netVarClass = netVariance >= 0 ? 'text-emerald-700' : 'text-rose-700';
+
+      const kopHTML = showKop ? `<div class="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-xl">PM</div><div><h1 class="text-base font-black text-slate-900 uppercase tracking-tight">DEPT PROJECT & MAINTENANCE</h1><p class="text-[10px] text-slate-500">Email: projectdeptsrt@gmail.com</p></div></div><div class="text-right"><span class="inline-block px-2.5 py-1 bg-amber-600 text-white font-extrabold text-[10px] rounded tracking-wider uppercase">LAPORAN PERTANGGUNGJAWABAN (LPJ)</span></div></div>` : '';
+      const techNameStr = proj.technician || (proj.rab ? proj.rab.techName : '') || 'Teknisi Maintenance';
+      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-8 text-center pt-2"><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Dibuat Oleh (Teknisi / Admin LPJ)</p><div class="h-12 flex items-center justify-center"><span class="text-[10px] font-bold text-slate-400">Verifikasi Fisik Nota</span></div><p class="font-bold text-slate-800 underline mt-1">${techNameStr}</p><p class="text-[10px] text-slate-500">Dept Project & Maintenance</p></div><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Disetujui Oleh (Head Dept)</p><div class="h-12 flex items-center justify-center"><span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"><i class="fa-solid fa-check-circle"></i> LPJ Approved</span></div><p class="font-bold text-slate-800 underline mt-1">Head of Operations</p><p class="text-[10px] text-slate-500">Management Representative</p></div></div>` : '';
+      const notesHTML = lpjNotes ? `<div class="mt-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px]"><p class="font-bold text-slate-700 uppercase mb-0.5">Catatan Pertanggungjawaban:</p><p class="text-slate-600 whitespace-pre-line">${lpjNotes}</p></div>` : '';
+
+      document.getElementById('printableLpjPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-3 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">LPJ & REALISASI: ${proj.name}</h2><p class="text-[11px] font-bold text-amber-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept} | Lokasi: ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. LPJ: <span class="font-mono text-slate-900">${lpjNo}</span></p><p class="text-slate-500">Tanggal LPJ: ${lpjDate}</p><p class="font-bold text-emerald-700 uppercase">Status: ${lpjStatus}</p></div></div><div class="grid grid-cols-3 gap-2 text-[10px] bg-slate-100 p-3 rounded-lg border border-slate-300 font-bold"><div>Total Budget RAB: <span class="text-blue-800 block text-xs font-extrabold">Rp ${totalRabSum.toLocaleString('id-ID')}</span></div><div>Total Realisasi: <span class="text-slate-900 block text-xs font-extrabold">Rp ${totalRealSum.toLocaleString('id-ID')}</span></div><div>Selisih Biaya: <span class="${netVarClass} block text-xs font-extrabold">Rp ${netVariance.toLocaleString('id-ID')}</span></div></div><div><table class="w-full text-left border-collapse text-[10px] border border-slate-300"><thead><tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300"><th class="p-1.5 text-center w-6">No</th><th class="p-1.5">Uraian Pekerjaan / Material</th><th class="p-1.5 text-center w-8">Qty</th><th class="p-1.5 w-12">Satuan</th><th class="p-1.5 text-right w-20">Harga RAB</th><th class="p-1.5 text-right w-20">Realisasi</th><th class="p-1.5 text-right w-24">Total Real</th><th class="p-1.5 text-right w-20">Selisih</th></tr></thead><tbody>${tableRowsHTML}</tbody><tfoot><tr class="bg-slate-100 font-extrabold text-slate-900 border-t-2 border-slate-400"><td colspan="6" class="p-1.5 text-right uppercase">Total Akumulasi LPJ:</td><td class="p-1.5 text-right text-blue-800">Rp ${totalRealSum.toLocaleString('id-ID')}</td><td class="p-1.5 text-right ${netVarClass}">Rp ${netVariance.toLocaleString('id-ID')}</td></tr></tfoot></table></div>${notesHTML}${ttdHTML}`;
+    }
+
     function openRabSummaryModal() {
       if (currentUserRole !== 'admin') { openLoginModal(); return; }
       const filterDeptEl = document.getElementById('filterDept');
