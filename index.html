@@ -475,6 +475,18 @@
         </div>
 
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Metode Pembayaran RAB</h4>
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Cash / Transfer</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div><label class="font-bold text-slate-500 uppercase block mb-1">Metode Pembayaran</label><select id="rabPaymentMethod" onchange="toggleRabBankField()" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none"><option value="Cash">Cash</option><option value="Transfer">Transfer</option></select></div>
+            <div id="rabBankField"><label class="font-bold text-slate-500 uppercase block mb-1">Bank</label><select id="rabPaymentBank" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none"><option value="">Pilih Bank</option><option>Bank Mandiri</option><option>Bank Rakyat Indonesia (BRI)</option><option>Bank Negara Indonesia (BNI)</option><option>Bank Tabungan Negara (BTN)</option><option>Bank Central Asia (BCA)</option><option>Bank CIMB Niaga</option><option>Bank Danamon</option><option>Bank Permata</option><option>Bank Maybank Indonesia</option><option>Bank Syariah Indonesia (BSI)</option><option>Bank Muamalat Indonesia</option><option>Bank Mega</option><option>Bank Panin</option><option>Bank OCBC NISP</option><option>Bank UOB Indonesia</option><option>Bank BTPN / SMBC Indonesia</option><option>Bank Jago</option><option>Bank Neo Commerce</option><option>Bank SeaBank Indonesia</option><option>Bank Raya Indonesia</option><option>Bank KB Bank</option><option>Bank Sinarmas</option><option>Bank Mestika Dharma</option><option>Bank Lainnya</option></select></div>
+            <div id="rabPaymentAccountField"><label class="font-bold text-slate-500 uppercase block mb-1">No. Rekening / Keterangan</label><input type="text" id="rabPaymentAccount" placeholder="Opsional" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none"></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <div class="flex justify-between items-center">
             <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <i class="fa-solid fa-list-check text-blue-600"></i> Rincian Material & Jasa
@@ -1483,9 +1495,18 @@
     function loadSignatureToCanvas(dataUrl) { const x=activeSignatureCanvases['legacy']; if(x && dataUrl){const img=new Image(); img.onload=()=>x.ctx.drawImage(img,0,0,x.canvas.width,x.canvas.height); img.src=dataUrl;} }
     function signatureCardHtml(type, idx, sig) {
       const prefix=type==='rab'?'rab':'lpj'; const key=prefix+'-'+idx; const isAdmin=currentUserRole==='admin';
-      return `<div class="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50" data-signature-card="${key}">\n        <div class="flex justify-between items-center border-b border-slate-200 pb-2"><span class="text-xs font-bold text-slate-700">Tanda Tangan #${idx+1}</span><button type="button" onclick="removeSignature('${type}',${idx})" class="text-[10px] text-rose-600 hover:underline font-semibold ${isAdmin?'':'hidden'}"><i class="fa-solid fa-trash"></i> Hapus TTD</button></div>\n        <div class="relative bg-white border border-slate-300 rounded-lg overflow-hidden shadow-inner h-28 flex items-center justify-center"><canvas id="${prefix}SigCanvas${idx}" class="sig-canvas w-full h-full"></canvas><span class="absolute text-slate-300 text-xs pointer-events-none select-none ${sig.signature?'hidden':''}">Coret / Gambar Tanda Tangan</span></div>\n        <div class="grid grid-cols-2 gap-2 text-xs"><div><label class="text-[10px] font-bold text-slate-400 uppercase">Nama</label><input id="${prefix}SigName${idx}" value="${(sig.name||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan / Role</label><input id="${prefix}SigRole${idx}" value="${(sig.role||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div></div>\n      </div>`;
+      const label=(sig.label||'').replace(/"/g,'&quot;');
+      return `<div class="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50" data-signature-card="${key}">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-2"><span class="text-xs font-bold text-slate-700">Tanda Tangan #${idx+1}</span><button type="button" onclick="removeSignature('${type}',${idx})" class="text-[10px] text-rose-600 hover:underline font-semibold ${isAdmin?'':'hidden'}"><i class="fa-solid fa-trash"></i> Hapus TTD</button></div>
+        <div class="relative bg-white border border-slate-300 rounded-lg overflow-hidden shadow-inner h-28 flex items-center justify-center"><canvas id="${prefix}SigCanvas${idx}" class="sig-canvas w-full h-full"></canvas><span class="absolute text-slate-300 text-xs pointer-events-none select-none ${sig.signature?'hidden':''}">Coret / Gambar Tanda Tangan</span></div>
+        <div class="grid grid-cols-1 gap-2 text-xs">
+          <div><label class="text-[10px] font-bold text-slate-400 uppercase">Keterangan / Sebagai</label><input id="${prefix}SigLabel${idx}" value="${label}" placeholder="Contoh: Dibuat Oleh / Disetujui Oleh / Diketahui Oleh" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500"></div>
+          <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold text-slate-400 uppercase">Nama</label><input id="${prefix}SigName${idx}" value="${(sig.name||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan / Role</label><input id="${prefix}SigRole${idx}" value="${(sig.role||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div></div>
+        </div>
+      </div>`;
     }
-    function renderSignatures(type, signatures) {
+    
+function renderSignatures(type, signatures) {
       const container=document.getElementById(type==='rab'?'rabSignaturesContainer':'lpjSignaturesContainer'); if(!container) return;
       activeSignatureCanvases[type]={};
       container.innerHTML=(signatures||[]).map((sig,i)=>signatureCardHtml(type,i,sig)).join('');
@@ -1493,15 +1514,15 @@
     }
     function ensureSignatures(proj,type){
       const key=type==='rab'?'rab':'lpj'; if(!proj[key].signatures){
-        if(type==='rab') proj.rab.signatures=[{name:proj.rab.techName||proj.technician||'',role:proj.rab.techRole||'Teknisi Maintenance',signature:proj.rab.techSignature||''},{name:proj.rab.approverName||'',role:proj.rab.approverRole||'Head Dept',signature:''}];
-        else proj.lpj.signatures=[{name:proj.technician||'',role:'Teknisi / Admin LPJ',signature:''},{name:'Head of Operations',role:'Management Representative',signature:''}];
+        if(type==='rab') proj.rab.signatures=[{label:'Dibuat Oleh',name:proj.rab.techName||proj.technician||'',role:proj.rab.techRole||'Teknisi Maintenance',signature:proj.rab.techSignature||''},{label:'Disetujui Oleh',name:proj.rab.approverName||'',role:proj.rab.approverRole||'Head Dept',signature:''}];
+        else proj.lpj.signatures=[{label:'Dibuat Oleh',name:proj.technician||'',role:'Teknisi / Admin LPJ',signature:''},{label:'Disetujui Oleh',name:'Head of Operations',role:'Management Representative',signature:''}];
       }
       return proj[key].signatures;
     }
-    function addRabSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('rabProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('rab'); a.push({name:'',role:'',signature:''}); p.rab.signatures=a; renderSignatures('rab',a); }
-    function addLpjSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('lpjProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('lpj'); a.push({name:'',role:'',signature:''}); p.lpj.signatures=a; renderSignatures('lpj',a); }
+    function addRabSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('rabProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('rab'); a.push({label:'',name:'',role:'',signature:''}); p.rab.signatures=a; renderSignatures('rab',a); }
+    function addLpjSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('lpjProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('lpj'); a.push({label:'',name:'',role:'',signature:''}); p.lpj.signatures=a; renderSignatures('lpj',a); }
     function removeSignature(type,idx){ if(currentUserRole!=='admin') return; const id=document.getElementById(type==='rab'?'rabProjId':'lpjProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures(type); p[type].signatures=a; if(a.length<=1){alert('Minimal harus ada 1 tanda tangan.');return;} a.splice(idx,1); renderSignatures(type,a); }
-    function collectSignatures(type){ const id=document.getElementById(type==='rab'?'rabProjId':'lpjProjId').value; const p=projects.find(x=>x.id===id); const a=ensureSignatures(p,type); return a.map((sig,i)=>({name:(document.getElementById(type+'SigName'+i)?.value||'').trim(),role:(document.getElementById(type+'SigRole'+i)?.value||'').trim(),signature:activeSignatureCanvases[type+'-'+i]?.canvas.toDataURL()||sig.signature||''})); }
+    function collectSignatures(type){ const id=document.getElementById(type==='rab'?'rabProjId':'lpjProjId').value; const p=projects.find(x=>x.id===id); const a=ensureSignatures(p,type); return a.map((sig,i)=>({label:(document.getElementById(type+'SigLabel'+i)?.value||'').trim(),name:(document.getElementById(type+'SigName'+i)?.value||'').trim(),role:(document.getElementById(type+'SigRole'+i)?.value||'').trim(),signature:activeSignatureCanvases[type+'-'+i]?.canvas.toDataURL()||sig.signature||''})); }
 
     function saveProject(e) { 
       e.preventDefault(); 
@@ -1719,6 +1740,13 @@
       }).join('');
     }
 
+    function toggleRabBankField() {
+      const method=document.getElementById('rabPaymentMethod'), bankField=document.getElementById('rabBankField'), accountField=document.getElementById('rabPaymentAccountField'), bank=document.getElementById('rabPaymentBank'), account=document.getElementById('rabPaymentAccount');
+      const isTransfer=method && method.value==='Transfer';
+      if(bankField) bankField.classList.toggle('hidden',!isTransfer); if(accountField) accountField.classList.toggle('hidden',!isTransfer);
+      if(bank){bank.required=isTransfer; if(!isTransfer) bank.value='';} if(account && !isTransfer) account.value='';
+    }
+
     function openRabModal(projId) { 
       const proj = projects.find(function(p) { return p.id === projId; }); 
       if (!proj) return; 
@@ -1734,7 +1762,12 @@
       const isAdmin = (currentUserRole === 'admin'); 
       document.getElementById('rabTitleInput').value = proj.rab.title || ("RAB - " + proj.name); document.getElementById('rabTitleInput').disabled = !isAdmin; 
       document.getElementById('rabNoInput').value = proj.rab.no || 'RAB-001'; document.getElementById('rabNoInput').disabled = !isAdmin; 
-      document.getElementById('rabDateInput').value = proj.rab.date || new Date().toISOString().split('T')[0]; document.getElementById('rabDateInput').disabled = !isAdmin;    
+      document.getElementById('rabDateInput').value = proj.rab.date || new Date().toISOString().split('T')[0]; document.getElementById('rabDateInput').disabled = !isAdmin;
+      document.getElementById('rabPaymentMethod').value = proj.rab.paymentMethod || 'Cash';
+      document.getElementById('rabPaymentBank').value = proj.rab.paymentBank || '';
+      document.getElementById('rabPaymentAccount').value = proj.rab.paymentAccount || '';
+      document.getElementById('rabPaymentMethod').disabled = !isAdmin; document.getElementById('rabPaymentBank').disabled = !isAdmin; document.getElementById('rabPaymentAccount').disabled = !isAdmin;
+      toggleRabBankField();
       renderSignatures('rab', ensureSignatures(proj,'rab'));
       const btnAddRabSig=document.getElementById('btnAddRabSignature'); if(btnAddRabSig) btnAddRabSig.style.display=isAdmin?'inline-flex':'none'; 
       
@@ -1783,6 +1816,7 @@
     function saveRabDetails() { 
       if (currentUserRole !== 'admin') return; const projId = document.getElementById('rabProjId').value; const proj = projects.find(function(p) { return p.id === projId; }); if (!proj) return; 
       proj.rab.title = document.getElementById('rabTitleInput').value.trim(); proj.rab.no = document.getElementById('rabNoInput').value.trim(); proj.rab.date = document.getElementById('rabDateInput').value;
+      proj.rab.paymentMethod = document.getElementById('rabPaymentMethod').value; proj.rab.paymentBank = document.getElementById('rabPaymentBank').value; proj.rab.paymentAccount = document.getElementById('rabPaymentAccount').value.trim();
       proj.rab.signatures = collectSignatures('rab'); if (proj.rab.signatures[0]) { proj.rab.techName=proj.rab.signatures[0].name; proj.rab.techRole=proj.rab.signatures[0].role; proj.rab.techSignature=proj.rab.signatures[0].signature; } if (proj.rab.signatures[1]) { proj.rab.approverName=proj.rab.signatures[1].name; proj.rab.approverRole=proj.rab.signatures[1].role; } 
       const grandTotal = calculateRabTotal(); if (proj.milestones[2]) { proj.milestones[2].note = 'Total RAB Rp ' + grandTotal.toLocaleString('id-ID'); } 
       saveToLocalStorage(); closeRabModal(); 
@@ -1801,6 +1835,8 @@
       const projId = document.getElementById('rabProjId').value; const proj = projects.find(p => p.id === projId); if (!proj) return;
       const showKop = document.getElementById('printOptKop').checked; const showPrices = document.getElementById('printOptShowPrices').checked; const showSignatures = document.getElementById('printOptShowSignatures').checked; const termsText = document.getElementById('printOptTerms').value.trim();
       const rabTitle = document.getElementById('rabTitleInput').value || proj.rab.title; const rabNo = document.getElementById('rabNoInput').value || proj.rab.no; const rabDate = document.getElementById('rabDateInput').value || proj.rab.date;
+      const paymentMethod=document.getElementById('rabPaymentMethod')?.value || proj.rab.paymentMethod || 'Cash'; const paymentBank=document.getElementById('rabPaymentBank')?.value || proj.rab.paymentBank || ''; const paymentAccount=document.getElementById('rabPaymentAccount')?.value || proj.rab.paymentAccount || '';
+      const paymentHTML=`<div class="mt-4 p-3 border border-emerald-200 bg-emerald-50/50 rounded-lg"><p class="font-bold text-slate-700 text-[10px] uppercase mb-1">Metode Pembayaran</p><p class="text-[11px] font-bold text-slate-800">${paymentMethod}${paymentMethod==='Transfer' ? ` &mdash; ${paymentBank || 'Bank belum dipilih'}${paymentAccount ? ` | Rekening: ${paymentAccount}` : ''}` : ''}</p></div>`;
       const items = proj.rab.items || []; let grandTotal = 0;
 
       const tableRowsHTML = items.map((item, idx) => {
@@ -1815,10 +1851,10 @@
       
       if (currentUserRole === 'admin') { proj.rab.signatures = collectSignatures('rab'); }
       const rabSigs = ensureSignatures(proj,'rab');
-      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${rabSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Tanda Tangan #${i+1}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
+      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${rabSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">${sg.label||('Tanda Tangan #'+(i+1))}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
       const termsHTML = termsText ? `<div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1"><p class="font-bold text-slate-700 text-[10px] uppercase">Ketentuan & Syarat Pekerjaan:</p><p class="text-[10px] text-slate-600 whitespace-pre-line leading-relaxed">${termsText}</p></div>` : '';
 
-      document.getElementById('printablePrintPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-2 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">${rabTitle}</h2><p class="text-[11px] font-bold text-blue-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept}</p><p class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot"></i> ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. RAB: <span class="font-mono text-slate-900">${rabNo}</span></p><p class="text-slate-500">Tanggal: ${rabDate}</p></div></div><div><table class="w-full text-left border-collapse text-[11px] border border-slate-300">${tableHeaderHTML}<tbody>${tableRowsHTML}</tbody>${tableFooterHTML}</table></div>${termsHTML}${ttdHTML}`;
+      document.getElementById('printablePrintPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-2 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">${rabTitle}</h2><p class="text-[11px] font-bold text-blue-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept}</p><p class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot"></i> ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. RAB: <span class="font-mono text-slate-900">${rabNo}</span></p><p class="text-slate-500">Tanggal: ${rabDate}</p></div></div><div><table class="w-full text-left border-collapse text-[11px] border border-slate-300">${tableHeaderHTML}<tbody>${tableRowsHTML}</tbody>${tableFooterHTML}</table></div>${paymentHTML}${termsHTML}${ttdHTML}`;
     }
 
     function openLpjModalFromRab() { const projId = document.getElementById('rabProjId').value; closeRabModal(); openLpjModal(projId); }
@@ -1935,7 +1971,7 @@
       const kopHTML = showKop ? `<div class="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-xl">PM</div><div><h1 class="text-base font-black text-slate-900 uppercase tracking-tight">DEPT PROJECT & MAINTENANCE</h1><p class="text-[10px] text-slate-500">Email: projectdeptsrt@gmail.com</p></div></div><div class="text-right"><span class="inline-block px-2.5 py-1 bg-amber-600 text-white font-extrabold text-[10px] rounded tracking-wider uppercase">LAPORAN PERTANGGUNGJAWABAN (LPJ)</span></div></div>` : '';
       if (currentUserRole === 'admin') { proj.lpj.signatures = collectSignatures('lpj'); }
       const lpjSigs = ensureSignatures(proj,'lpj');
-      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${lpjSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Tanda Tangan #${i+1}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
+      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${lpjSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">${sg.label||('Tanda Tangan #'+(i+1))}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
       const notesHTML = lpjNotes ? `<div class="mt-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px]"><p class="font-bold text-slate-700 uppercase mb-0.5">Catatan Pertanggungjawaban:</p><p class="text-slate-600 whitespace-pre-line">${lpjNotes}</p></div>` : '';
 
       document.getElementById('printableLpjPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-3 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">LPJ & REALISASI: ${proj.name}</h2><p class="text-[11px] font-bold text-amber-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept} | Lokasi: ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. LPJ: <span class="font-mono text-slate-900">${lpjNo}</span></p><p class="text-slate-500">Tanggal LPJ: ${lpjDate}</p><p class="font-bold text-emerald-700 uppercase">Status: ${lpjStatus}</p></div></div><div class="grid grid-cols-3 gap-2 text-[10px] bg-slate-100 p-3 rounded-lg border border-slate-300 font-bold"><div>Total Budget RAB: <span class="text-blue-800 block text-xs font-extrabold">Rp ${totalRabSum.toLocaleString('id-ID')}</span></div><div>Total Realisasi: <span class="text-slate-900 block text-xs font-extrabold">Rp ${totalRealSum.toLocaleString('id-ID')}</span></div><div>Selisih Biaya: <span class="${netVarClass} block text-xs font-extrabold">Rp ${netVariance.toLocaleString('id-ID')}</span></div></div><div><table class="w-full text-left border-collapse text-[10px] border border-slate-300"><thead><tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300"><th class="p-1.5 text-center w-6">No</th><th class="p-1.5">Uraian Pekerjaan / Material</th><th class="p-1.5 text-center w-8">Qty</th><th class="p-1.5 w-12">Satuan</th><th class="p-1.5 text-right w-20">Harga RAB</th><th class="p-1.5 text-right w-20">Realisasi</th><th class="p-1.5 text-right w-24">Total Real</th><th class="p-1.5 text-right w-20">Selisih</th></tr></thead><tbody>${tableRowsHTML}</tbody><tfoot><tr class="bg-slate-100 font-extrabold text-slate-900 border-t-2 border-slate-400"><td colspan="6" class="p-1.5 text-right uppercase">Total Akumulasi LPJ:</td><td class="p-1.5 text-right text-blue-800">Rp ${totalRealSum.toLocaleString('id-ID')}</td><td class="p-1.5 text-right ${netVarClass}">Rp ${netVariance.toLocaleString('id-ID')}</td></tr></tfoot></table></div>${notesHTML}${ttdHTML}`;
