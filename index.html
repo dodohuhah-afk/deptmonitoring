@@ -509,57 +509,15 @@
         </div>
 
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-signature text-blue-600"></i> Lembar Pengesahan & Tanda Tangan
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50">
-              <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                <span class="text-xs font-bold text-slate-700">Dibuat Oleh (Teknisi / PIC)</span>
-                <button type="button" id="btnResetSignature" onclick="clearSignatureCanvas()" class="text-[10px] text-rose-600 hover:underline font-semibold flex items-center gap-1">
-                  <i class="fa-solid fa-rotate-left"></i> Reset TTD
-                </button>
-              </div>
-              <div class="relative bg-white border border-slate-300 rounded-lg overflow-hidden shadow-inner h-32 flex items-center justify-center">
-                <canvas id="signatureCanvas" class="sig-canvas w-full h-full"></canvas>
-                <span id="sigPlaceholder" class="absolute text-slate-300 text-xs pointer-events-none select-none">
-                  Coret / Gambar Tanda Tangan di Sini
-                </span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Teknisi</label>
-                  <input type="text" id="rabTechName" class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan / Role</label>
-                  <input type="text" id="rabTechRole" class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-              </div>
-            </div>
-            <div class="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50">
-              <div class="border-b border-slate-200 pb-2">
-                <span class="text-xs font-bold text-slate-700">Disetujui Oleh (Supervisor / Head Dept)</span>
-              </div>
-              <div class="h-32 bg-white border border-slate-200 rounded-lg flex flex-col items-center justify-center border-dashed p-3 text-center">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-1">
-                  <i class="fa-solid fa-check text-lg"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-600">Persetujuan Terverifikasi</span>
-                <span class="text-[9px] text-slate-400">Status Approval Finance / Dept Head</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Supervisor</label>
-                  <input type="text" id="rabApproverName" class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan / Dept</label>
-                  <input type="text" id="rabApproverRole" class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-              </div>
-            </div>
+          <div class="flex justify-between items-center">
+            <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-signature text-blue-600"></i> Lembar Pengesahan & Tanda Tangan
+            </h4>
+            <button type="button" id="btnAddRabSignature" onclick="addRabSignature()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-bold border border-blue-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Tambah Tanda Tangan
+            </button>
           </div>
+          <div id="rabSignaturesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
       </div>
 
@@ -594,7 +552,14 @@
   <div id="pettyCashPrintSettingsModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center z-[60] p-2 sm:p-4 transition-all"><div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-100 max-h-[95vh] flex flex-col"><div class="bg-slate-900 px-6 py-4 flex justify-between items-center shrink-0"><div class="flex items-center gap-3"><div class="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><i class="fa-solid fa-print text-xl"></i></div><div><h3 class="text-white font-bold text-base">Setting & Preview Cetak Petty Cash</h3></div></div><button onclick="closePettyCashPrintSettingsModal()" class="text-slate-400 hover:text-white transition p-1"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-hidden"><div class="lg:col-span-4 bg-slate-50 p-5 border-r border-slate-200 overflow-y-auto space-y-4 text-xs"><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pcPrintOptKop" checked onchange="updatePettyCashPrintPreview()" class="rounded text-purple-600 focus:ring-purple-500"><span class="font-bold text-slate-700">Tampilkan Kop Resmi</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="pcPrintOptSignatures" checked onchange="updatePettyCashPrintPreview()" class="rounded text-purple-600 focus:ring-purple-500"><span class="font-bold text-slate-700">Tampilkan Tanda Tangan</span></label><label class="font-bold text-slate-700 block">Departemen yang Dicetak</label><select id="pcPrintOptDept" onchange="handlePcPrintDeptFilterChange()" class="w-full p-2 border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:ring-1 focus:ring-purple-500"><option value="ALL">Semua Departemen</option><option value="Wrapping">Wrapping</option><option value="FnB">FnB</option><option value="Minimarket">Minimarket</option><option value="Reflexology">Reflexology</option><option value="Cellular">Cellular</option><option value="Hans">Hans</option><option value="Money Changer">Money Changer</option></select><label class="font-bold text-slate-700 block">Toko / Outlet yang Dicetak</label><select id="pcPrintOptOutlet" onchange="updatePettyCashPrintPreview()" class="w-full p-2 border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:ring-1 focus:ring-purple-500"><option value="ALL">Semua Toko / Outlet</option></select><textarea id="pcPrintOptNotes" rows="3" oninput="updatePettyCashPrintPreview()" class="w-full p-2 border border-slate-200 rounded-lg text-xs outline-none">1. Seluruh transaksi kas kecil telah diverifikasi dengan bukti fisik kwitansi.</textarea></div><div class="lg:col-span-8 bg-slate-200 p-6 overflow-y-auto flex justify-center items-start custom-scrollbar"><div id="printablePettyCashPreview" class="bg-white w-full max-w-2xl min-h-[600px] p-8 rounded-lg shadow-xl border border-slate-300 text-slate-800 text-xs"></div></div></div><div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-between items-center shrink-0"><button onclick="closePettyCashPrintSettingsModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold">Batal</button><button onclick="triggerPettyCashPrint()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak Dokumen</button></div></div></div>
 
   <!-- LPJ Dashboard -->
-  <div id="lpjModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[50] p-2 sm:p-4 transition-all"><div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-100 max-h-[92vh] flex flex-col"><div class="bg-slate-900 px-6 py-4 flex justify-between items-center shrink-0"><div class="flex items-center gap-3"><div class="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl"><i class="fa-solid fa-file-circle-check text-xl"></i></div><div><h3 class="text-white font-bold text-base flex items-center gap-2">Laporan Pertanggungjawaban (LPJ) & Penyelesaian RAB <span class="bg-amber-500/30 text-amber-300 text-[10px] uppercase font-extrabold px-2 py-0.5 rounded border border-amber-400/30"><i class="fa-solid fa-lock text-[9px]"></i> Admin Only</span></h3><p class="text-xs text-slate-400" id="lpjSubtitle">Realisasi Biaya vs Estimasi RAB</p></div></div><div class="flex items-center gap-2"><button onclick="openLpjPrintSettingsModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hidden sm:flex"><i class="fa-solid fa-print"></i> Preview & Setting</button><button onclick="closeLpjModal()" class="text-slate-400 hover:text-white transition p-1"><i class="fa-solid fa-xmark text-xl"></i></button></div></div><div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 bg-slate-50" id="lpjPrintableArea"><input type="hidden" id="lpjProjId"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total RAB (Estimasi)</p><h3 class="text-lg font-black text-blue-700 mt-0.5" id="lpjStatEstRab">Rp 0</h3></div><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Realisasi (LPJ)</p><h3 class="text-lg font-black text-emerald-700 mt-0.5" id="lpjStatRealCost">Rp 0</h3></div><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selisih / Hemat Biaya</p><h3 class="text-lg font-black mt-0.5" id="lpjStatVariance">Rp 0</h3></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"><div><label class="font-bold text-slate-500 uppercase block mb-1">Status Penyelesaian LPJ</label><select id="lpjStatusSelect" class="w-full p-2 border border-slate-200 rounded-lg font-extrabold outline-none bg-amber-50/50 text-slate-800"><option value="Draft">⏳ DRAFT LPJ (Dalam Penyusunan)</option><option value="Verifikasi">🔍 DIVERIFIKASI (Pemeriksaan Nota)</option><option value="Selesai">✓ SELESAI & LUNAS (CLOSED)</option></select></div><div><label class="font-bold text-slate-500 uppercase block mb-1">Tanggal</label><input type="date" id="lpjDateInput" class="w-full p-2 border border-slate-200 rounded-lg font-semibold outline-none"></div><div><label class="font-bold text-slate-500 uppercase block mb-1">No. Registrasi LPJ</label><input type="text" id="lpjNoInput" class="w-full p-2 border border-slate-200 rounded-lg font-mono font-bold outline-none"></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4"><div class="flex justify-between items-center"><h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-list-check text-amber-600"></i> Rincian Realisasi Biaya</h4><button type="button" id="btnAddLpjItem" onclick="addLpjItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-amber-200 hidden sm:flex"><i class="fa-solid fa-plus text-[10px]"></i> Tambah Item Tambahan</button></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px] text-xs"><thead><tr class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider text-[10px]"><th class="p-2.5 border border-slate-200 text-center w-8">No</th><th class="p-2.5 border border-slate-200">Uraian Barang / Jasa</th><th class="p-2.5 border border-slate-200 text-center w-20">Qty</th><th class="p-2.5 border border-slate-200 w-24">Satuan</th><th class="p-2.5 border border-slate-200 text-right w-28">Harga RAB (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-36">Harga Realisasi (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-32">Total Realisasi (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-28">Selisih (Rp)</th><th class="p-2.5 border border-slate-200 text-center w-12 lpj-admin-col">Aksi</th></tr></thead><tbody id="lpjItemsTableBody" class="divide-y divide-slate-100 font-medium"></tbody><tfoot><tr class="bg-slate-100 font-extrabold text-slate-900 text-xs"><td colspan="6" class="p-3 text-right uppercase text-slate-600">Total Akumulasi:</td><td class="p-3 text-right text-emerald-700 text-sm" id="lpjTableGrandReal">Rp 0</td><td class="p-3 text-right" id="lpjTableGrandVariance">Rp 0</td><td class="lpj-admin-col"></td></tr></tfoot></table></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2"><label class="font-bold text-slate-700 text-xs uppercase block">Catatan LPJ & Keterangan</label><textarea id="lpjNotesInput" rows="3" class="w-full p-2.5 border border-slate-200 rounded-lg text-xs outline-none font-normal"></textarea></div></div><div class="bg-white px-6 py-4 border-t border-slate-200 flex justify-between items-center shrink-0"><button onclick="closeLpjModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition">Tutup</button><button onclick="saveLpjDetails()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5"><i class="fa-solid fa-floppy-disk"></i> Simpan LPJ</button></div></div></div>
+  <div id="lpjModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[50] p-2 sm:p-4 transition-all"><div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-100 max-h-[92vh] flex flex-col"><div class="bg-slate-900 px-6 py-4 flex justify-between items-center shrink-0"><div class="flex items-center gap-3"><div class="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl"><i class="fa-solid fa-file-circle-check text-xl"></i></div><div><h3 class="text-white font-bold text-base flex items-center gap-2">Laporan Pertanggungjawaban (LPJ) & Penyelesaian RAB <span class="bg-amber-500/30 text-amber-300 text-[10px] uppercase font-extrabold px-2 py-0.5 rounded border border-amber-400/30"><i class="fa-solid fa-lock text-[9px]"></i> Admin Only</span></h3><p class="text-xs text-slate-400" id="lpjSubtitle">Realisasi Biaya vs Estimasi RAB</p></div></div><div class="flex items-center gap-2"><button onclick="openLpjPrintSettingsModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hidden sm:flex"><i class="fa-solid fa-print"></i> Preview & Setting</button><button onclick="closeLpjModal()" class="text-slate-400 hover:text-white transition p-1"><i class="fa-solid fa-xmark text-xl"></i></button></div></div><div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 bg-slate-50" id="lpjPrintableArea"><input type="hidden" id="lpjProjId"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total RAB (Estimasi)</p><h3 class="text-lg font-black text-blue-700 mt-0.5" id="lpjStatEstRab">Rp 0</h3></div><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Realisasi (LPJ)</p><h3 class="text-lg font-black text-emerald-700 mt-0.5" id="lpjStatRealCost">Rp 0</h3></div><div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selisih / Hemat Biaya</p><h3 class="text-lg font-black mt-0.5" id="lpjStatVariance">Rp 0</h3></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"><div><label class="font-bold text-slate-500 uppercase block mb-1">Status Penyelesaian LPJ</label><select id="lpjStatusSelect" class="w-full p-2 border border-slate-200 rounded-lg font-extrabold outline-none bg-amber-50/50 text-slate-800"><option value="Draft">⏳ DRAFT LPJ (Dalam Penyusunan)</option><option value="Verifikasi">🔍 DIVERIFIKASI (Pemeriksaan Nota)</option><option value="Selesai">✓ SELESAI & LUNAS (CLOSED)</option></select></div><div><label class="font-bold text-slate-500 uppercase block mb-1">Tanggal</label><input type="date" id="lpjDateInput" class="w-full p-2 border border-slate-200 rounded-lg font-semibold outline-none"></div><div><label class="font-bold text-slate-500 uppercase block mb-1">No. Registrasi LPJ</label><input type="text" id="lpjNoInput" class="w-full p-2 border border-slate-200 rounded-lg font-mono font-bold outline-none"></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4"><div class="flex justify-between items-center"><h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-list-check text-amber-600"></i> Rincian Realisasi Biaya</h4><button type="button" id="btnAddLpjItem" onclick="addLpjItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-amber-200 hidden sm:flex"><i class="fa-solid fa-plus text-[10px]"></i> Tambah Item Tambahan</button></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px] text-xs"><thead><tr class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider text-[10px]"><th class="p-2.5 border border-slate-200 text-center w-8">No</th><th class="p-2.5 border border-slate-200">Uraian Barang / Jasa</th><th class="p-2.5 border border-slate-200 text-center w-20">Qty</th><th class="p-2.5 border border-slate-200 w-24">Satuan</th><th class="p-2.5 border border-slate-200 text-right w-28">Harga RAB (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-36">Harga Realisasi (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-32">Total Realisasi (Rp)</th><th class="p-2.5 border border-slate-200 text-right w-28">Selisih (Rp)</th><th class="p-2.5 border border-slate-200 text-center w-12 lpj-admin-col">Aksi</th></tr></thead><tbody id="lpjItemsTableBody" class="divide-y divide-slate-100 font-medium"></tbody><tfoot><tr class="bg-slate-100 font-extrabold text-slate-900 text-xs"><td colspan="6" class="p-3 text-right uppercase text-slate-600">Total Akumulasi:</td><td class="p-3 text-right text-emerald-700 text-sm" id="lpjTableGrandReal">Rp 0</td><td class="p-3 text-right" id="lpjTableGrandVariance">Rp 0</td><td class="lpj-admin-col"></td></tr></tfoot></table></div></div><div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-signature text-amber-600"></i> Lembar Tanda Tangan LPJ</h4>
+            <button type="button" id="btnAddLpjSignature" onclick="addLpjSignature()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-200 flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Tanda Tangan</button>
+          </div>
+          <div id="lpjSignaturesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2"><label class="font-bold text-slate-700 text-xs uppercase block">Catatan LPJ & Keterangan</label><textarea id="lpjNotesInput" rows="3" class="w-full p-2.5 border border-slate-200 rounded-lg text-xs outline-none font-normal"></textarea></div></div><div class="bg-white px-6 py-4 border-t border-slate-200 flex justify-between items-center shrink-0"><button onclick="closeLpjModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition">Tutup</button><button onclick="saveLpjDetails()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5"><i class="fa-solid fa-floppy-disk"></i> Simpan LPJ</button></div></div></div>
 
   <!-- LPJ Print -->
   <div id="lpjPrintSettingsModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center z-[60] p-2 sm:p-4 transition-all"><div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-100 max-h-[95vh] flex flex-col"><div class="bg-slate-900 px-6 py-4 flex justify-between items-center shrink-0"><div class="flex items-center gap-3"><div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg"><i class="fa-solid fa-print text-xl"></i></div><div><h3 class="text-white font-bold text-base">Setting & Preview Cetak LPJ</h3></div></div><button onclick="closeLpjPrintSettingsModal()" class="text-slate-400 hover:text-white transition p-1"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-hidden"><div class="lg:col-span-4 bg-slate-50 p-5 border-r border-slate-200 overflow-y-auto space-y-4 text-xs"><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="lpjPrintOptKop" checked onchange="updateLpjPrintPreview()" class="rounded text-amber-600 focus:ring-amber-500"><span class="font-bold text-slate-700">Tampilkan Kop Resmi</span></label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="lpjPrintOptSignatures" checked onchange="updateLpjPrintPreview()" class="rounded text-amber-600 focus:ring-amber-500"><span class="font-bold text-slate-700">Tampilkan Tanda Tangan</span></label></div><div class="lg:col-span-8 bg-slate-200 p-6 overflow-y-auto flex justify-center items-start custom-scrollbar"><div id="printableLpjPreview" class="bg-white w-full max-w-2xl min-h-[600px] p-8 rounded-lg shadow-xl border border-slate-300 text-slate-800 text-xs"></div></div></div><div class="bg-white px-6 py-3 border-t border-slate-200 flex justify-between items-center shrink-0"><button onclick="closeLpjPrintSettingsModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold">Batal</button><button onclick="triggerLpjPrint()" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak Dokumen</button></div></div></div>
@@ -1495,44 +1460,48 @@
     }
 
     let isDrawing = false; let sigCanvas, sigCtx;
-    function initSignatureCanvas() { 
-      sigCanvas = document.getElementById('signatureCanvas'); 
-      if (!sigCanvas) return; 
-      const rect = sigCanvas.parentElement.getBoundingClientRect(); 
-      sigCanvas.width = rect.width || 350; sigCanvas.height = rect.height || 128; 
-      sigCtx = sigCanvas.getContext('2d'); 
-      sigCtx.lineWidth = 2.5; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round'; sigCtx.strokeStyle = '#1e3a8a'; 
-      sigCanvas.onmousedown = function(e) { if(currentUserRole === 'admin') startDrawing(e.offsetX, e.offsetY); }; 
-      sigCanvas.onmousemove = function(e) { if(currentUserRole === 'admin') draw(e.offsetX, e.offsetY); }; 
-      sigCanvas.onmouseup = stopDrawing; 
-      sigCanvas.onmouseleave = stopDrawing; 
-      sigCanvas.ontouchstart = function(e) { if (currentUserRole !== 'admin') return; e.preventDefault(); const r = sigCanvas.getBoundingClientRect(); const touch = e.touches[0]; startDrawing(touch.clientX - r.left, touch.clientY - r.top); }; 
-      sigCanvas.ontouchmove = function(e) { if (currentUserRole !== 'admin') return; e.preventDefault(); const r = sigCanvas.getBoundingClientRect(); const touch = e.touches[0]; draw(touch.clientX - r.left, touch.clientY - r.top); }; 
-      sigCanvas.ontouchend = stopDrawing; 
+    const activeSignatureCanvases = {};
+    function setupSignatureCanvas(canvas, key, dataUrl) {
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width || 350; canvas.height = rect.height || 128;
+      const ctx = canvas.getContext('2d');
+      ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1e3a8a';
+      activeSignatureCanvases[key] = { canvas, ctx };
+      let drawing = false;
+      const pos = e => { const r=canvas.getBoundingClientRect(); return {x:(e.clientX-r.left)*(canvas.width/r.width), y:(e.clientY-r.top)*(canvas.height/r.height)}; };
+      canvas.onpointerdown = e => { if(currentUserRole!=='admin') return; e.preventDefault(); drawing=true; canvas.setPointerCapture?.(e.pointerId); const q=pos(e); ctx.beginPath(); ctx.moveTo(q.x,q.y); };
+      canvas.onpointermove = e => { if(!drawing || currentUserRole!=='admin') return; const q=pos(e); ctx.lineTo(q.x,q.y); ctx.stroke(); };
+      canvas.onpointerup = canvas.onpointercancel = () => { drawing=false; };
+      if (dataUrl) { const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,canvas.width,canvas.height); img.src=dataUrl; }
     }
-    
-    function startDrawing(x, y) { isDrawing = true; sigCtx.beginPath(); sigCtx.moveTo(x, y); const placeholder = document.getElementById('sigPlaceholder'); if (placeholder) placeholder.classList.add('hidden'); }
-    function draw(x, y) { if (!isDrawing) return; sigCtx.lineTo(x, y); sigCtx.stroke(); }
-    function stopDrawing() { isDrawing = false; }
-    
-    function clearSignatureCanvas() { 
-      if (!sigCanvas || !sigCtx || currentUserRole !== 'admin') return; 
-      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); 
-      const placeholder = document.getElementById('sigPlaceholder'); 
-      if (placeholder) placeholder.classList.remove('hidden'); 
+    function initSignatureCanvas() {
+      const c=document.getElementById('signatureCanvas'); if(c) setupSignatureCanvas(c,'legacy',null);
+      sigCanvas=c; sigCtx=c?c.getContext('2d'):null;
     }
-    
-    function loadSignatureToCanvas(dataUrl) { 
-      clearSignatureCanvas(); 
-      if (!dataUrl) return; 
-      const img = new Image(); 
-      img.onload = function() { 
-        sigCtx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height); 
-        const placeholder = document.getElementById('sigPlaceholder'); 
-        if (placeholder) placeholder.classList.add('hidden'); 
-      }; 
-      img.src = dataUrl; 
+    function clearSignatureCanvas() { if(currentUserRole!=='admin') return; const x=activeSignatureCanvases['legacy']; if(x){x.ctx.clearRect(0,0,x.canvas.width,x.canvas.height);} }
+    function loadSignatureToCanvas(dataUrl) { const x=activeSignatureCanvases['legacy']; if(x && dataUrl){const img=new Image(); img.onload=()=>x.ctx.drawImage(img,0,0,x.canvas.width,x.canvas.height); img.src=dataUrl;} }
+    function signatureCardHtml(type, idx, sig) {
+      const prefix=type==='rab'?'rab':'lpj'; const key=prefix+'-'+idx; const isAdmin=currentUserRole==='admin';
+      return `<div class="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50" data-signature-card="${key}">\n        <div class="flex justify-between items-center border-b border-slate-200 pb-2"><span class="text-xs font-bold text-slate-700">Tanda Tangan #${idx+1}</span><button type="button" onclick="removeSignature('${type}',${idx})" class="text-[10px] text-rose-600 hover:underline font-semibold ${isAdmin?'':'hidden'}"><i class="fa-solid fa-trash"></i> Hapus TTD</button></div>\n        <div class="relative bg-white border border-slate-300 rounded-lg overflow-hidden shadow-inner h-28 flex items-center justify-center"><canvas id="${prefix}SigCanvas${idx}" class="sig-canvas w-full h-full"></canvas><span class="absolute text-slate-300 text-xs pointer-events-none select-none ${sig.signature?'hidden':''}">Coret / Gambar Tanda Tangan</span></div>\n        <div class="grid grid-cols-2 gap-2 text-xs"><div><label class="text-[10px] font-bold text-slate-400 uppercase">Nama</label><input id="${prefix}SigName${idx}" value="${(sig.name||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan / Role</label><input id="${prefix}SigRole${idx}" value="${(sig.role||'').replace(/"/g,'&quot;')}" ${isAdmin?'':'disabled'} class="w-full p-2 border border-slate-200 rounded-lg bg-white outline-none"></div></div>\n      </div>`;
     }
+    function renderSignatures(type, signatures) {
+      const container=document.getElementById(type==='rab'?'rabSignaturesContainer':'lpjSignaturesContainer'); if(!container) return;
+      activeSignatureCanvases[type]={};
+      container.innerHTML=(signatures||[]).map((sig,i)=>signatureCardHtml(type,i,sig)).join('');
+      (signatures||[]).forEach((sig,i)=>{ const c=document.getElementById((type==='rab'?'rab':'lpj')+'SigCanvas'+i); setupSignatureCanvas(c,type+'-'+i,sig.signature); });
+    }
+    function ensureSignatures(proj,type){
+      const key=type==='rab'?'rab':'lpj'; if(!proj[key].signatures){
+        if(type==='rab') proj.rab.signatures=[{name:proj.rab.techName||proj.technician||'',role:proj.rab.techRole||'Teknisi Maintenance',signature:proj.rab.techSignature||''},{name:proj.rab.approverName||'',role:proj.rab.approverRole||'Head Dept',signature:''}];
+        else proj.lpj.signatures=[{name:proj.technician||'',role:'Teknisi / Admin LPJ',signature:''},{name:'Head of Operations',role:'Management Representative',signature:''}];
+      }
+      return proj[key].signatures;
+    }
+    function addRabSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('rabProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('rab'); a.push({name:'',role:'',signature:''}); p.rab.signatures=a; renderSignatures('rab',a); }
+    function addLpjSignature(){ if(currentUserRole!=='admin') return; const id=document.getElementById('lpjProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures('lpj'); a.push({name:'',role:'',signature:''}); p.lpj.signatures=a; renderSignatures('lpj',a); }
+    function removeSignature(type,idx){ if(currentUserRole!=='admin') return; const id=document.getElementById(type==='rab'?'rabProjId':'lpjProjId').value; const p=projects.find(x=>x.id===id); if(!p)return; const a=collectSignatures(type); p[type].signatures=a; if(a.length<=1){alert('Minimal harus ada 1 tanda tangan.');return;} a.splice(idx,1); renderSignatures(type,a); }
+    function collectSignatures(type){ const id=document.getElementById(type==='rab'?'rabProjId':'lpjProjId').value; const p=projects.find(x=>x.id===id); const a=ensureSignatures(p,type); return a.map((sig,i)=>({name:(document.getElementById(type+'SigName'+i)?.value||'').trim(),role:(document.getElementById(type+'SigRole'+i)?.value||'').trim(),signature:activeSignatureCanvases[type+'-'+i]?.canvas.toDataURL()||sig.signature||''})); }
 
     function saveProject(e) { 
       e.preventDefault(); 
@@ -1758,21 +1727,18 @@
       document.getElementById('rabHeaderTitle').innerText = proj.name; 
       
       if (!proj.rab) { 
-        proj.rab = { title: "RAB Dept Project & Maintenance - " + proj.name, no: "RAB/" + proj.dept.toUpperCase() + "/" + new Date().getFullYear() + "/" + Math.floor(100 + Math.random() * 900), date: new Date().toISOString().split('T')[0], items: [{ name: "Biaya Pekerjaan Awal", qty: 1, unit: "Paket", price: 0 }], techName: proj.technician || "", techRole: "Teknisi Maintenance", techSignature: "", approverName: "Supervisor Area", approverRole: "Head Dept" }; 
+        proj.rab = { title: "RAB Dept Project & Maintenance - " + proj.name, no: "RAB/" + proj.dept.toUpperCase() + "/" + new Date().getFullYear() + "/" + Math.floor(100 + Math.random() * 900), date: new Date().toISOString().split('T')[0], items: [{ name: "Biaya Pekerjaan Awal", qty: 1, unit: "Paket", price: 0 }], techName: proj.technician || "", techRole: "Teknisi Maintenance", techSignature: "", approverName: "Supervisor Area", approverRole: "Head Dept", signatures: null }; 
       } 
       if (proj.technician && !proj.rab.techName) { proj.rab.techName = proj.technician; } 
       
       const isAdmin = (currentUserRole === 'admin'); 
       document.getElementById('rabTitleInput').value = proj.rab.title || ("RAB - " + proj.name); document.getElementById('rabTitleInput').disabled = !isAdmin; 
       document.getElementById('rabNoInput').value = proj.rab.no || 'RAB-001'; document.getElementById('rabNoInput').disabled = !isAdmin; 
-      document.getElementById('rabDateInput').value = proj.rab.date || new Date().toISOString().split('T')[0]; document.getElementById('rabDateInput').disabled = !isAdmin; 
-      document.getElementById('rabTechName').value = proj.rab.techName || proj.technician || ''; document.getElementById('rabTechName').disabled = !isAdmin; 
-      document.getElementById('rabTechRole').value = proj.rab.techRole || 'Teknisi Field'; document.getElementById('rabTechRole').disabled = !isAdmin; 
-      document.getElementById('rabApproverName').value = proj.rab.approverName || ''; document.getElementById('rabApproverName').disabled = !isAdmin; 
-      document.getElementById('rabApproverRole').value = proj.rab.approverRole || 'Dept Head'; document.getElementById('rabApproverRole').disabled = !isAdmin; 
+      document.getElementById('rabDateInput').value = proj.rab.date || new Date().toISOString().split('T')[0]; document.getElementById('rabDateInput').disabled = !isAdmin;    
+      renderSignatures('rab', ensureSignatures(proj,'rab'));
+      const btnAddRabSig=document.getElementById('btnAddRabSignature'); if(btnAddRabSig) btnAddRabSig.style.display=isAdmin?'inline-flex':'none'; 
       
       const btnAddRabItem = document.getElementById('btnAddRabItem'); if (btnAddRabItem) btnAddRabItem.style.display = isAdmin ? 'inline-flex' : 'none'; 
-      const btnResetSig = document.getElementById('btnResetSignature'); if (btnResetSig) btnResetSig.style.display = isAdmin ? 'inline-flex' : 'none'; 
       const btnSaveRab = document.getElementById('btnSaveRab'); if (btnSaveRab) btnSaveRab.style.display = isAdmin ? 'inline-flex' : 'none'; 
       
       const rabMilestone = proj.milestones[2]; const statusText = rabMilestone ? rabMilestone.status.toUpperCase() : 'DRAFT'; 
@@ -1816,8 +1782,8 @@
     
     function saveRabDetails() { 
       if (currentUserRole !== 'admin') return; const projId = document.getElementById('rabProjId').value; const proj = projects.find(function(p) { return p.id === projId; }); if (!proj) return; 
-      proj.rab.title = document.getElementById('rabTitleInput').value.trim(); proj.rab.no = document.getElementById('rabNoInput').value.trim(); proj.rab.date = document.getElementById('rabDateInput').value; proj.rab.techName = document.getElementById('rabTechName').value.trim(); proj.technician = proj.rab.techName; proj.rab.techRole = document.getElementById('rabTechRole').value.trim(); proj.rab.approverName = document.getElementById('rabApproverName').value.trim(); proj.rab.approverRole = document.getElementById('rabApproverRole').value.trim(); 
-      if (sigCanvas) { proj.rab.techSignature = sigCanvas.toDataURL(); } 
+      proj.rab.title = document.getElementById('rabTitleInput').value.trim(); proj.rab.no = document.getElementById('rabNoInput').value.trim(); proj.rab.date = document.getElementById('rabDateInput').value;
+      proj.rab.signatures = collectSignatures('rab'); if (proj.rab.signatures[0]) { proj.rab.techName=proj.rab.signatures[0].name; proj.rab.techRole=proj.rab.signatures[0].role; proj.rab.techSignature=proj.rab.signatures[0].signature; } if (proj.rab.signatures[1]) { proj.rab.approverName=proj.rab.signatures[1].name; proj.rab.approverRole=proj.rab.signatures[1].role; } 
       const grandTotal = calculateRabTotal(); if (proj.milestones[2]) { proj.milestones[2].note = 'Total RAB Rp ' + grandTotal.toLocaleString('id-ID'); } 
       saveToLocalStorage(); closeRabModal(); 
     }
@@ -1847,11 +1813,9 @@
       const tableFooterHTML = showPrices ? `<tfoot><tr class="bg-slate-50 font-extrabold text-slate-900 border-t-2 border-slate-400"><td colspan="5" class="p-2 text-right uppercase tracking-wider">Grand Total:</td><td class="p-2 text-right text-blue-800 text-sm">Rp ${grandTotal.toLocaleString('id-ID')}</td></tr></tfoot>` : `<tfoot><tr class="bg-slate-50 font-extrabold text-slate-900 border-t-2 border-slate-400"><td colspan="3" class="p-2 text-right uppercase tracking-wider">Estimasi Nilai Pekerjaan:</td><td class="p-2 text-right text-blue-800 text-sm">Rp ${grandTotal.toLocaleString('id-ID')}</td></tr></tfoot>`;
       const kopHTML = showKop ? `<div class="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-xl">PM</div><div><h1 class="text-base font-black text-slate-900 uppercase tracking-tight">DEPT PROJECT & MAINTENANCE</h1><p class="text-[10px] text-slate-500">Email: projectdeptsrt@gmail.com</p></div></div><div class="text-right"><span class="inline-block px-2.5 py-1 bg-slate-900 text-white font-extrabold text-[10px] rounded tracking-wider uppercase">DOKUMEN RESMI</span></div></div>` : '';
       
-      const techSig = sigCanvas ? sigCanvas.toDataURL() : proj.rab.techSignature;
-      const sigImgHTML = techSig ? `<img src="${techSig}" class="h-12 mx-auto object-contain">` : '<div class="h-12"></div>';
-      const techNameVal = document.getElementById('rabTechName').value || 'Teknisi'; const techRoleVal = document.getElementById('rabTechRole').value || 'Maintenance'; const appNameVal = document.getElementById('rabApproverName').value || 'Supervisor'; const appRoleVal = document.getElementById('rabApproverRole').value || 'Head Dept';
-
-      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-8 text-center pt-2"><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Dibuat Oleh (Teknisi/PIC)</p>${sigImgHTML}<p class="font-bold text-slate-800 underline mt-1">${techNameVal}</p><p class="text-[10px] text-slate-500">${techRoleVal}</p></div><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Disetujui Oleh (Supervisor)</p><div class="h-12 flex items-center justify-center"><span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"><i class="fa-solid fa-check-circle"></i> Approved</span></div><p class="font-bold text-slate-800 underline mt-1">${appNameVal}</p><p class="text-[10px] text-slate-500">${appRoleVal}</p></div></div>` : '';
+      if (currentUserRole === 'admin') { proj.rab.signatures = collectSignatures('rab'); }
+      const rabSigs = ensureSignatures(proj,'rab');
+      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${rabSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Tanda Tangan #${i+1}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
       const termsHTML = termsText ? `<div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1"><p class="font-bold text-slate-700 text-[10px] uppercase">Ketentuan & Syarat Pekerjaan:</p><p class="text-[10px] text-slate-600 whitespace-pre-line leading-relaxed">${termsText}</p></div>` : '';
 
       document.getElementById('printablePrintPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-2 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">${rabTitle}</h2><p class="text-[11px] font-bold text-blue-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept}</p><p class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot"></i> ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. RAB: <span class="font-mono text-slate-900">${rabNo}</span></p><p class="text-slate-500">Tanggal: ${rabDate}</p></div></div><div><table class="w-full text-left border-collapse text-[11px] border border-slate-300">${tableHeaderHTML}<tbody>${tableRowsHTML}</tbody>${tableFooterHTML}</table></div>${termsHTML}${ttdHTML}`;
@@ -1863,7 +1827,7 @@
       if (currentUserRole !== 'admin') { openLoginModal(); return; } const proj = projects.find(function(p) { return p.id === projId; }); if (!proj) return; 
       document.getElementById('lpjProjId').value = projId; document.getElementById('lpjSubtitle').innerText = proj.name + ' (' + proj.dept + ' - ' + proj.location + ')'; 
       if (!proj.lpj) { 
-        proj.lpj = { no: "LPJ/" + proj.dept.toUpperCase() + "/" + new Date().getFullYear() + "/" + Math.floor(100 + Math.random() * 900), date: new Date().toISOString().split('T')[0], status: "Draft", notes: "Pekerjaan telah rampung dan diserahterimakan.", items: (proj.rab && proj.rab.items) ? proj.rab.items.map(function(item) { return { name: item.name, qty: item.qty || 1, unit: item.unit || "Pcs", rabPrice: item.price || 0, realPrice: item.price || 0 }; }) : [] }; 
+        proj.lpj = { no: "LPJ/" + proj.dept.toUpperCase() + "/" + new Date().getFullYear() + "/" + Math.floor(100 + Math.random() * 900), date: new Date().toISOString().split('T')[0], status: "Draft", notes: "Pekerjaan telah rampung dan diserahterimakan.", items: (proj.rab && proj.rab.items) ? proj.rab.items.map(function(item) { return { name: item.name, qty: item.qty || 1, unit: item.unit || "Pcs", rabPrice: item.price || 0, realPrice: item.price || 0 }; }) : [], signatures: null }; 
       } 
       document.getElementById('lpjNoInput').value = proj.lpj.no || ("LPJ-" + proj.id); document.getElementById('lpjDateInput').value = proj.lpj.date || new Date().toISOString().split('T')[0]; document.getElementById('lpjStatusSelect').value = proj.lpj.status || "Draft"; document.getElementById('lpjNotesInput').value = proj.lpj.notes || ""; 
       const btnAddLpj = document.getElementById('btnAddLpjItem'); if (btnAddLpj) btnAddLpj.style.display = (currentUserRole === 'admin') ? 'flex' : 'none';
@@ -1944,7 +1908,8 @@
     
     function saveLpjDetails() { 
       if (currentUserRole !== 'admin') return; const projId = document.getElementById('lpjProjId').value; const proj = projects.find(function(p) { return p.id === projId; }); if (!proj || !proj.lpj) return; 
-      proj.lpj.no = document.getElementById('lpjNoInput').value.trim(); proj.lpj.date = document.getElementById('lpjDateInput').value; proj.lpj.status = document.getElementById('lpjStatusSelect').value; proj.lpj.notes = document.getElementById('lpjNotesInput').value.trim(); 
+      proj.lpj.no = document.getElementById('lpjNoInput').value.trim(); proj.lpj.date = document.getElementById('lpjDateInput').value; proj.lpj.status = document.getElementById('lpjStatusSelect').value; proj.lpj.notes = document.getElementById('lpjNotesInput').value.trim();
+      proj.lpj.signatures = collectSignatures('lpj'); 
       if (proj.lpj.status === 'Selesai') { if (proj.milestones && proj.milestones[4]) { proj.milestones[4].status = 'completed'; proj.milestones[4].note = 'LPJ Lunas & Selesai (' + proj.lpj.date + ')'; } } 
       saveToLocalStorage(); closeLpjModal(); 
     }
@@ -1968,8 +1933,9 @@
       const netVariance = totalRabSum - totalRealSum; const netVarClass = netVariance >= 0 ? 'text-emerald-700' : 'text-rose-700';
 
       const kopHTML = showKop ? `<div class="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-xl">PM</div><div><h1 class="text-base font-black text-slate-900 uppercase tracking-tight">DEPT PROJECT & MAINTENANCE</h1><p class="text-[10px] text-slate-500">Email: projectdeptsrt@gmail.com</p></div></div><div class="text-right"><span class="inline-block px-2.5 py-1 bg-amber-600 text-white font-extrabold text-[10px] rounded tracking-wider uppercase">LAPORAN PERTANGGUNGJAWABAN (LPJ)</span></div></div>` : '';
-      const techNameStr = proj.technician || (proj.rab ? proj.rab.techName : '') || 'Teknisi Maintenance';
-      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-8 text-center pt-2"><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Dibuat Oleh (Teknisi / Admin LPJ)</p><div class="h-12 flex items-center justify-center"><span class="text-[10px] font-bold text-slate-400">Verifikasi Fisik Nota</span></div><p class="font-bold text-slate-800 underline mt-1">${techNameStr}</p><p class="text-[10px] text-slate-500">Dept Project & Maintenance</p></div><div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Disetujui Oleh (Head Dept)</p><div class="h-12 flex items-center justify-center"><span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"><i class="fa-solid fa-check-circle"></i> LPJ Approved</span></div><p class="font-bold text-slate-800 underline mt-1">Head of Operations</p><p class="text-[10px] text-slate-500">Management Representative</p></div></div>` : '';
+      if (currentUserRole === 'admin') { proj.lpj.signatures = collectSignatures('lpj'); }
+      const lpjSigs = ensureSignatures(proj,'lpj');
+      const ttdHTML = showSignatures ? `<div class="mt-8 grid grid-cols-2 gap-4 text-center pt-2">${lpjSigs.map((sg,i)=>`<div class="border border-slate-200 p-3 rounded-lg bg-slate-50"><p class="text-slate-500 font-medium mb-1">Tanda Tangan #${i+1}</p>${sg.signature?`<img src="${sg.signature}" class="h-12 mx-auto object-contain">`:'<div class="h-12"></div>'}<p class="font-bold text-slate-800 underline mt-1">${sg.name||'-'}</p><p class="text-[10px] text-slate-500">${sg.role||'-'}</p></div>`).join('')}</div>` : '';
       const notesHTML = lpjNotes ? `<div class="mt-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px]"><p class="font-bold text-slate-700 uppercase mb-0.5">Catatan Pertanggungjawaban:</p><p class="text-slate-600 whitespace-pre-line">${lpjNotes}</p></div>` : '';
 
       document.getElementById('printableLpjPreview').innerHTML = kopHTML + `<div class="flex justify-between items-start pb-3 border-b border-slate-200"><div><h2 class="text-base font-extrabold text-slate-900 uppercase">LPJ & REALISASI: ${proj.name}</h2><p class="text-[11px] font-bold text-amber-700">No. WO: ${proj.workOrderNo || '-'} | Dept: ${proj.dept} | Lokasi: ${proj.location}</p></div><div class="text-right text-[10px]"><p class="font-bold text-slate-700">No. LPJ: <span class="font-mono text-slate-900">${lpjNo}</span></p><p class="text-slate-500">Tanggal LPJ: ${lpjDate}</p><p class="font-bold text-emerald-700 uppercase">Status: ${lpjStatus}</p></div></div><div class="grid grid-cols-3 gap-2 text-[10px] bg-slate-100 p-3 rounded-lg border border-slate-300 font-bold"><div>Total Budget RAB: <span class="text-blue-800 block text-xs font-extrabold">Rp ${totalRabSum.toLocaleString('id-ID')}</span></div><div>Total Realisasi: <span class="text-slate-900 block text-xs font-extrabold">Rp ${totalRealSum.toLocaleString('id-ID')}</span></div><div>Selisih Biaya: <span class="${netVarClass} block text-xs font-extrabold">Rp ${netVariance.toLocaleString('id-ID')}</span></div></div><div><table class="w-full text-left border-collapse text-[10px] border border-slate-300"><thead><tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300"><th class="p-1.5 text-center w-6">No</th><th class="p-1.5">Uraian Pekerjaan / Material</th><th class="p-1.5 text-center w-8">Qty</th><th class="p-1.5 w-12">Satuan</th><th class="p-1.5 text-right w-20">Harga RAB</th><th class="p-1.5 text-right w-20">Realisasi</th><th class="p-1.5 text-right w-24">Total Real</th><th class="p-1.5 text-right w-20">Selisih</th></tr></thead><tbody>${tableRowsHTML}</tbody><tfoot><tr class="bg-slate-100 font-extrabold text-slate-900 border-t-2 border-slate-400"><td colspan="6" class="p-1.5 text-right uppercase">Total Akumulasi LPJ:</td><td class="p-1.5 text-right text-blue-800">Rp ${totalRealSum.toLocaleString('id-ID')}</td><td class="p-1.5 text-right ${netVarClass}">Rp ${netVariance.toLocaleString('id-ID')}</td></tr></tfoot></table></div>${notesHTML}${ttdHTML}`;
@@ -2251,7 +2217,8 @@
       proj.lpj.no = document.getElementById('lpjNoInput').value.trim(); 
       proj.lpj.date = document.getElementById('lpjDateInput').value; 
       proj.lpj.status = document.getElementById('lpjStatusSelect').value; 
-      proj.lpj.notes = document.getElementById('lpjNotesInput').value.trim(); 
+      proj.lpj.notes = document.getElementById('lpjNotesInput').value.trim();
+      proj.lpj.signatures = collectSignatures('lpj'); 
       
       if (proj.lpj.status === 'Selesai') { 
         if (proj.milestones && proj.milestones[4]) { 
